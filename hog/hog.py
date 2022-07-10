@@ -22,13 +22,8 @@ def roll_dice(num_rolls, dice=six_sided):
     assert type(num_rolls) == int, 'num_rolls must be an integer.'
     assert num_rolls > 0, 'Must roll at least once.'
     # BEGIN PROBLEM 1
-    score = 0
-    for _ in range(num_rolls):
-        outcome = dice()
-        if outcome == 1:
-            return 1
-        score += outcome
-    return outcome
+    outcomes = [dice() for _ in range(num_rolls)]
+    return sum(outcomes) if (1 not in outcomes) else 1
     # END PROBLEM 1
 
 
@@ -39,7 +34,9 @@ def oink_points(player_score, opponent_score):
     opponent_score: The total score of the other player.
     """
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+    tens = (opponent_score // 10) % 10
+    ones = opponent_score % 10
+    return max(1, 2 * tens - ones)
     # END PROBLEM 2
 
 
@@ -60,7 +57,9 @@ def take_turn(num_rolls, player_score, opponent_score, dice=six_sided, goal=GOAL
     assert num_rolls <= 10, 'Cannot roll more than 10 dice.'
     assert max(player_score, opponent_score) < goal, 'The game should be over.'
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    if num_rolls == 0:
+        return oink_points(player_score, opponent_score)
+    return roll_dice(num_rolls, dice)
     # END PROBLEM 3
 
 
@@ -84,7 +83,13 @@ def pigs_on_prime(player_score, opponent_score):
     opponent_score: The total score of the other player.
     """
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    additional_points = 0
+    if is_prime(player_score):
+        while True:
+            additional_points += 1
+            if is_prime(player_score + additional_points):
+                break
+    return additional_points
     # END PROBLEM 4
 
 
