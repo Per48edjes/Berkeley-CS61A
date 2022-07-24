@@ -1,9 +1,9 @@
 """Typing test implementation"""
 
-from utils import lower, split, remove_punctuation, lines_from_file
-from ucb import main, interact, trace
 from datetime import datetime
 
+from ucb import interact, main, trace
+from utils import lines_from_file, lower, remove_punctuation, split
 
 ###########
 # Phase 1 #
@@ -30,7 +30,8 @@ def pick(paragraphs, select, k):
     ''
     """
     # BEGIN PROBLEM 1
-    "*** YOUR CODE HERE ***"
+    p = list(filter(select, paragraphs))
+    return p[k] if len(p) > k else ""
     # END PROBLEM 1
 
 
@@ -47,9 +48,17 @@ def about(topic):
     >>> pick(['Cute Dog!', 'That is a cat.', 'Nice pup.'], about_dogs, 1)
     'Nice pup.'
     """
-    assert all([lower(x) == x for x in topic]), 'topics should be lowercase.'
+    assert all([lower(x) == x for x in topic]), "topics should be lowercase."
     # BEGIN PROBLEM 2
-    "*** YOUR CODE HERE ***"
+
+    def select(paragraph):
+        for t_word in topic:
+            for p_word in split(paragraph):
+                if t_word == lower(remove_punctuation(p_word)):
+                    return True
+        return False
+
+    return select
     # END PROBLEM 2
 
 
@@ -79,7 +88,24 @@ def accuracy(typed, reference):
     typed_words = split(typed)
     reference_words = split(reference)
     # BEGIN PROBLEM 3
-    "*** YOUR CODE HERE ***"
+    if not typed_words and not reference_words:
+        return 100.0
+
+    # Bitwise `xor` operator
+    elif bool(typed_words) ^ bool(reference_words):
+        return 0.0
+
+    else:
+        incorrect_words = (
+            extra_words
+            if (extra_words := len(typed_words) - len(reference_words)) > 0
+            else 0
+        )
+        total_words = len(typed_words)
+        for i in range(min(len(typed_words), len(reference_words))):
+            incorrect_words += 1 if (typed_words[i] != reference_words[i]) else 0
+
+        return 100.0 * (1 - incorrect_words / total_words)
     # END PROBLEM 3
 
 
@@ -95,15 +121,16 @@ def wpm(typed, elapsed):
     >>> wpm('0123456789',60)
     2.0
     """
-    assert elapsed > 0, 'Elapsed time must be positive'
+    assert elapsed > 0, "Elapsed time must be positive"
     # BEGIN PROBLEM 4
-    "*** YOUR CODE HERE ***"
+    return (len(typed) / 5) / (elapsed / 60)
     # END PROBLEM 4
 
 
 ###########
 # Phase 2 #
 ###########
+
 
 def autocorrect(typed_word, word_list, diff_function, limit):
     """Returns the element of WORD_LIST that has the smallest difference
@@ -151,7 +178,7 @@ def feline_fixes(typed, reference, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    assert False, "Remove this line"
     # END PROBLEM 6
 
 
@@ -181,7 +208,7 @@ def hidden_kittens(typed, reference, limit):
 def final_diff(typed, reference, limit):
     """A diff function that takes in a string TYPED, a string REFERENCE, and a number LIMIT.
     If you implement this function, it will be used."""
-    assert False, 'Remove this line to use your final_diff function.'
+    assert False, "Remove this line to use your final_diff function."
 
 
 FINAL_DIFF_LIMIT = 6  # REPLACE THIS WITH YOUR LIMIT
@@ -258,7 +285,7 @@ def fastest_words(match):
     [4, 1, 6]
     """
     player_indices = range(len(match["times"]))  # contains an *index* for each player
-    word_indices = range(len(match["words"]))    # contains an *index* for each word
+    word_indices = range(len(match["words"]))  # contains an *index* for each word
     # BEGIN PROBLEM 10
     "*** YOUR CODE HERE ***"
     # END PROBLEM 10
@@ -277,10 +304,14 @@ def match(words, times):
         words: ['Hello', 'world']
         times: [[5, 1], [4, 2]]
     """
-    assert all([type(w) == str for w in words]), 'words should be a list of strings'
-    assert all([type(t) == list for t in times]), 'times should be a list of lists'
-    assert all([isinstance(i, (int, float)) for t in times for i in t]), 'times lists should contain numbers'
-    assert all([len(t) == len(words) for t in times]), 'There should be one word per time.'
+    assert all([type(w) == str for w in words]), "words should be a list of strings"
+    assert all([type(t) == list for t in times]), "times should be a list of lists"
+    assert all(
+        [isinstance(i, (int, float)) for t in times for i in t]
+    ), "times lists should contain numbers"
+    assert all(
+        [len(t) == len(words) for t in times]
+    ), "There should be one word per time."
     return {"words": words, "times": times}
 
 
@@ -311,7 +342,7 @@ enable_multiplayer = False  # Change to True when you're ready to race.
 
 def run_typing_test(topics):
     """Measure typing speed and accuracy on the command line."""
-    paragraphs = lines_from_file('data/sample_paragraphs.txt')
+    paragraphs = lines_from_file("data/sample_paragraphs.txt")
     select = lambda p: True
     if topics:
         select = about(topics)
@@ -319,27 +350,27 @@ def run_typing_test(topics):
     while True:
         reference = pick(paragraphs, select, i)
         if not reference:
-            print('No more paragraphs about', topics, 'are available.')
+            print("No more paragraphs about", topics, "are available.")
             return
-        print('Type the following paragraph and then press enter/return.')
-        print('If you only type part of it, you will be scored only on that part.\n')
+        print("Type the following paragraph and then press enter/return.")
+        print("If you only type part of it, you will be scored only on that part.\n")
         print(reference)
         print()
 
         start = datetime.now()
         typed = input()
         if not typed:
-            print('Goodbye.')
+            print("Goodbye.")
             return
         print()
 
         elapsed = (datetime.now() - start).total_seconds()
         print("Nice work!")
-        print('Words per minute:', wpm(typed, elapsed))
-        print('Accuracy:        ', accuracy(typed, reference))
+        print("Words per minute:", wpm(typed, elapsed))
+        print("Accuracy:        ", accuracy(typed, reference))
 
-        print('\nPress enter/return for the next paragraph or type q to quit.')
-        if input().strip() == 'q':
+        print("\nPress enter/return for the next paragraph or type q to quit.")
+        if input().strip() == "q":
             return
         i += 1
 
@@ -348,9 +379,10 @@ def run_typing_test(topics):
 def run(*args):
     """Read in the command-line argument and calls corresponding functions."""
     import argparse
+
     parser = argparse.ArgumentParser(description="Typing Test")
-    parser.add_argument('topic', help="Topic word", nargs='*')
-    parser.add_argument('-t', help="Run typing test", action='store_true')
+    parser.add_argument("topic", help="Topic word", nargs="*")
+    parser.add_argument("-t", help="Run typing test", action="store_true")
 
     args = parser.parse_args()
     if args.t:
