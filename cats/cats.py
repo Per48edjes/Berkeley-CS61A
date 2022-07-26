@@ -231,7 +231,34 @@ def hidden_kittens(typed, reference, limit):
     True
     """
     # BEGIN PROBLEM 7
-    "*** YOUR CODE HERE ***"
+    occurrences = 0
+
+    def _occurrence_counter(typed, reference, limit):
+        nonlocal occurrences
+
+        def _branch_helper(i=0):
+            if i < len(typed):
+                if typed[i] == reference[-1]:
+                    _occurrence_counter(typed[:i:], reference[:-1:], limit)
+                _branch_helper(i + 1)
+                return
+            return
+
+        if len(typed) < len(reference):
+            return
+
+        if not reference:
+            occurrences += 1
+            return
+
+        _branch_helper()
+
+    _occurrence_counter(typed, reference, limit)
+
+    if occurrences == 0:
+        return limit + 1
+    else:
+        return occurrences
     # END PROBLEM 7
 
 
