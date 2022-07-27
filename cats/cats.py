@@ -1,6 +1,7 @@
 """Typing test implementation"""
 
 from datetime import datetime
+from itertools import tee
 
 from ucb import interact, main, trace
 from utils import lines_from_file, lower, remove_punctuation, split
@@ -236,6 +237,7 @@ def hidden_kittens(typed, reference, limit):
     def _occurrence_counter(typed, reference, limit):
         nonlocal occurrences
 
+        # NOTE: Problem submission doesn't allow for iteration
         def _branch_helper(i=0):
             if i < len(typed):
                 if typed[i] == reference[-1]:
@@ -300,8 +302,25 @@ def report_progress(typed, prompt, user_id, upload):
     0.2
     """
     # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
+    incorrect_words = tuple(
+        filter(lambda pair: pair[1][0] != pair[1][1], enumerate(zip(typed, prompt)))
+    )
+    first_false_idx = (
+        min(len(prompt), len(typed)) if not incorrect_words else incorrect_words[0][0]
+    )
+    progress = first_false_idx / len(prompt)
+    upload({"id": user_id, "progress": progress})
+    return progress
     # END PROBLEM 8
+
+
+def pairwise(iterable):
+    """
+    Pairwise iteration threw an iterable
+    """
+    a, b = tee(iterable, 2)
+    next(b, None)
+    return zip(a, b)
 
 
 def time_per_word(words, times_per_player):
@@ -322,7 +341,14 @@ def time_per_word(words, times_per_player):
     [[6, 3, 6, 2], [10, 6, 1, 2]]
     """
     # BEGIN PROBLEM 9
-    "*** YOUR CODE HERE ***"
+    match = {
+        "words": words,
+        "times": [
+            [t2 - t1 for t1, t2 in pairwise(timestamps)]
+            for timestamps in times_per_player
+        ],
+    }
+    return match
     # END PROBLEM 9
 
 
@@ -344,7 +370,12 @@ def fastest_words(match):
     player_indices = range(len(match["times"]))  # contains an *index* for each player
     word_indices = range(len(match["words"]))  # contains an *index* for each word
     # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
+    results = [[] for _ in player_indices]
+    for w, p in enumerate(
+        [min(player_indices, key=lambda p: time(match, p, w)) for w in word_indices]
+    ):
+        results[p].append(get_word(match, w))
+    return results
     # END PROBLEM 10
 
 
