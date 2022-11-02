@@ -3,4 +3,5 @@ __pycache__
 **/*.ok*
 **/ok
 **/construct_check.py
+**/editor/
 **/tests/
