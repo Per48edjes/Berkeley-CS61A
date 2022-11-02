@@ -2,6 +2,7 @@ __pycache__
 
 **/*.ok*
 **/ok
+**/scheme
 **/construct_check.py
 **/editor/
 **/tests/
