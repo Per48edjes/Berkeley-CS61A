@@ -58,6 +58,13 @@ class Pair:
         else:
             raise TypeError('ill-formed list (cdr is a promise)')
 
+    def simple_scheme_to_python_list(self):
+        """Helper method that converts a well-formed Scheme list to a Python list."""
+        element = [self.first]
+        if self.rest is nil or isinstance(self.rest, Pair):
+            return element + self.rest.simple_scheme_to_python_list()
+        else:
+            raise TypeError('ill-formed list (cdr is a promise)')
 
 class nil:
     """The empty list"""
@@ -76,6 +83,9 @@ class nil:
 
     def flatmap(self, fn):
         return self
+
+    def simple_scheme_to_python_list(self):
+        return []
 
 
 nil = nil()  # Assignment hides the nil class; there is only one instance

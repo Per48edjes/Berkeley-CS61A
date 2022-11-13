@@ -19,7 +19,8 @@ class Frame:
     def __init__(self, parent):
         """An empty frame with parent frame PARENT (which may be None)."""
         # BEGIN Problem 1
-        "*** YOUR CODE HERE ***"
+        self.parent = parent
+        self.bindings = {}
         # END Problem 1
 
     def __repr__(self):
@@ -31,11 +32,18 @@ class Frame:
     def define(self, symbol, value):
         """Define Scheme SYMBOL to have VALUE."""
         # BEGIN Problem 1
-        "*** YOUR CODE HERE ***"
+        self.bindings[symbol] = value
         # END Problem 1
 
     # BEGIN Problem 1
-    "*** YOUR CODE HERE ***"
+    def lookup(self, symbol):
+        """Looks up Scheme SYMBOL via rules of lexical scope."""
+        if symbol in self.bindings:
+            return self.bindings[symbol]
+        elif self.parent:
+            return self.parent.lookup(symbol)
+        else:
+            raise SchemeError(f"'{symbol}' is not defined.")
     # END Problem 1
 
 ##############

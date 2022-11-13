@@ -22,7 +22,39 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
     4
     """
     # BEGIN Problem 1/2
-    "*** YOUR CODE HERE ***"
+    if expr is None:
+        raise SchemeError("Cannot evaluate undefined.")
+    if env is None:
+        raise SchemeError("No environment to evaluate expression.")
+
+    # Evaluate atomic expressions
+    if self_evaluating(expr):
+        return expr
+    if scheme_symbolp(expr):
+        return env.lookup(expr)
+
+    # Everything else is a Scheme list
+    if not scheme_listp(expr):
+        raise SchemeError(f"malformed list: {str(expr)}")
+
+    first, rest = expr.first, expr.rest
+
+    # Evaluate special forms
+    if first == "if":
+        return scheme_forms.do_if_form(rest, env)
+    elif first == "lambda":
+        return scheme_forms.do_lambda_form(rest, env)
+    elif first == "define":
+        return scheme_forms.do_define_form(rest, env)
+    elif first == "quote":
+        return scheme_forms.do_quote_form(rest, env)
+
+    # Evaluate call expression
+    else:
+        procedure = scheme_eval(first, env)
+        validate_procedure(procedure)
+        args = rest.map(lambda operand: scheme_eval(operand, env))
+        return scheme_apply(procedure, args, env)
     # END Problem 1/2
 
 
@@ -30,7 +62,14 @@ def scheme_apply(procedure, args, env):
     """Apply Scheme PROCEDURE to argument values ARGS (a Scheme list) in
     Frame ENV, the current environment."""
     # BEGIN Problem 1/2
-    "*** YOUR CODE HERE ***"
+    # Base case: builtins don't require new environment
+    python_args = args.simple_scheme_to_python_list()
+    if procedure.need_env:
+        python_args.append(env)
+    try:
+        return procedure.py_func(*python_args)
+    except TypeError:
+        raise SchemeError("incorrect number of arguments")
     # END Problem 1/2
 
 
