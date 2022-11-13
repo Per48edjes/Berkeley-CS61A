@@ -48,6 +48,8 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
         return scheme_forms.do_define_form(rest, env)
     elif first == "quote":
         return scheme_forms.do_quote_form(rest, env)
+    elif first == "begin":
+        return scheme_forms.do_begin_form(rest, env)
 
     # Evaluate call expression
     else:
@@ -63,13 +65,17 @@ def scheme_apply(procedure, args, env):
     Frame ENV, the current environment."""
     # BEGIN Problem 1/2
     # Base case: builtins don't require new environment
-    python_args = args.simple_scheme_to_python_list()
-    if procedure.need_env:
-        python_args.append(env)
-    try:
-        return procedure.py_func(*python_args)
-    except TypeError:
-        raise SchemeError("incorrect number of arguments")
+    if isinstance(procedure, BuiltinProcedure):
+        python_args = args.simple_scheme_to_python_list()
+        if procedure.need_env:
+            python_args.append(env)
+        try:
+            return procedure.py_func(*python_args)
+        except TypeError:
+            raise SchemeError("incorrect number of arguments")
+    else:
+        function_frame = procedure.env.make_child_frame(procedure.formals, args)
+        return scheme_forms.do_begin_form(procedure.body, function_frame)
     # END Problem 1/2
 
 
