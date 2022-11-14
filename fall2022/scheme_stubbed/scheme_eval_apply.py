@@ -1,11 +1,10 @@
-import sys
 import os
+import sys
 
+import scheme_forms
 from pair import *
 from scheme_utils import *
 from ucb import main, trace
-
-import scheme_forms
 
 ##############
 # Eval/Apply #
@@ -22,8 +21,6 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
     4
     """
     # BEGIN Problem 1/2
-    if expr is None:
-        raise SchemeError("Cannot evaluate undefined.")
     if env is None:
         raise SchemeError("No environment to evaluate expression.")
 
@@ -42,10 +39,20 @@ def scheme_eval(expr, env, _=None):  # Optional third argument is ignored
     # Evaluate special forms
     if first == "if":
         return scheme_forms.do_if_form(rest, env)
+    if first == "cond":
+        return scheme_forms.do_cond_form(rest, env)
+    if first == "and":
+        return scheme_forms.do_and_form(rest, env)
+    if first == "or":
+        return scheme_forms.do_or_form(rest, env)
     elif first == "lambda":
         return scheme_forms.do_lambda_form(rest, env)
+    elif first == "mu":
+        return scheme_forms.do_mu_form(rest, env)
     elif first == "define":
         return scheme_forms.do_define_form(rest, env)
+    elif first == "let":
+        return scheme_forms.do_let_form(rest, env)
     elif first == "quote":
         return scheme_forms.do_quote_form(rest, env)
     elif first == "begin":
@@ -73,9 +80,11 @@ def scheme_apply(procedure, args, env):
             return procedure.py_func(*python_args)
         except TypeError:
             raise SchemeError("incorrect number of arguments")
-    else:
+    elif isinstance(procedure, LambdaProcedure):
         function_frame = procedure.env.make_child_frame(procedure.formals, args)
-        return scheme_forms.do_begin_form(procedure.body, function_frame)
+    elif isinstance(procedure, MuProcedure):
+        function_frame = env.make_child_frame(procedure.formals, args)
+    return scheme_forms.do_begin_form(procedure.body, function_frame)
     # END Problem 1/2
 
 
@@ -94,6 +103,7 @@ def complete_apply(procedure, args, env):
     Right now it just calls scheme_apply, but you will need to change this
     if you attempt the extra credit."""
     validate_procedure(procedure)
+    return scheme_apply(procedure, args, env)
     # BEGIN
-    return val
+    # return val
     # END
