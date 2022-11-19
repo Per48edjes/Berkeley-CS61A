@@ -20,8 +20,8 @@ def do_if_form(rest, env):
         rest.rest.rest.first,
     )
     if is_scheme_true(scheme_eval(predicate, env)):
-        return scheme_eval(consequent, env)
-    return scheme_eval(alternative, env)
+        return scheme_eval(consequent, env, True)
+    return scheme_eval(alternative, env, True)
 
 
 def do_cond_form(rest, env):
@@ -45,7 +45,7 @@ def do_cond_form(rest, env):
 def do_and_form(rest, env):
     if rest is nil:
         return True
-    test_value = scheme_eval(rest.first, env)
+    test_value = scheme_eval(rest.first, env, True) if rest.rest is nil else scheme_eval(rest.first, env)
     if is_scheme_true(test_value) and rest.rest is not nil:
         return do_and_form(rest.rest, env)
     else:
@@ -55,7 +55,7 @@ def do_and_form(rest, env):
 def do_or_form(rest, env):
     if rest is nil:
         return False
-    test_value = scheme_eval(rest.first, env)
+    test_value = scheme_eval(rest.first, env, True) if rest.rest is nil else scheme_eval(rest.first, env)
     if is_scheme_false(test_value) and rest.rest is not nil:
         return do_or_form(rest.rest, env)
     else:
@@ -81,9 +81,8 @@ def do_quote_form(rest, env):
 def do_begin_form(rest, env):
     evaluated_subexpression = None
     while rest is not nil:
-        subexpression = rest.first
-        evaluated_subexpression = scheme_eval(subexpression, env)
-        rest = rest.rest
+        subexpression, rest = rest.first, rest.rest
+        evaluated_subexpression = scheme_eval(subexpression, env, True) if rest is nil else scheme_eval(subexpression, env)
     return evaluated_subexpression
 
 
